@@ -7,8 +7,9 @@
 :root{--blood:#9a1018;--bone:#d8d0bf;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html,body{height:100%;margin:0;background:#040405;color:var(--bone);font-family:'IM Fell English',Georgia,serif;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
 canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+#graveyard-menu-bg{position:fixed;inset:0;width:100%;height:100%;border:0;z-index:1;display:none;pointer-events:none;background:#040405}body.menu-state #graveyard-menu-bg{display:block}
 #vig{position:fixed;inset:0;pointer-events:none;z-index:3;background:radial-gradient(ellipse at 50% 50%,transparent 38%,rgba(0,0,0,.82) 100%)}
-.ov{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;background:rgba(2,2,3,.84);z-index:5;padding:20px;overflow:auto}
+.ov{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;background:rgba(2,2,3,.48);z-index:5;padding:20px;overflow:auto}
 .ov[hidden]{display:none}
 h1,h2{font-family:UnifrakturCook,'IM Fell English',serif;font-weight:700;margin:0;line-height:1.05;background:linear-gradient(#efe8d6,#8f8777 55%,#4a443a);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 #000) drop-shadow(0 0 16px rgba(120,10,16,.55));animation:flick 6s infinite}
 h1{font-size:clamp(48px,15vw,96px)}h2{font-size:36px}
@@ -21,7 +22,8 @@ button:active,.btn:active{background:#3a0a0e;border-color:var(--blood)}
 .row .btn,.row button{padding:6px 12px;font-size:15px}.row input{display:none}
 .btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 #home{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:50%;transform:translateX(-50%);z-index:4;padding:5px 14px;font-size:15px}#home[hidden]{display:none}
-</style></head><body>
+</style></head><body class="menu-state">
+<iframe id="graveyard-menu-bg" src="graveyard-3d.html" title="Animated graveyard background" aria-hidden="true" tabindex="-1"></iframe>
 <canvas id="c"></canvas><div id="vig"></div><button id="home" hidden>☰ Menu</button>
 <div class="ov" id="menu"><h1>Dead Break</h1><p>Break every stone. Something is waiting behind the last one.</p><button id="go">Enter the crypt</button></div>
 <div class="ov" id="end" hidden><h1 id="et"></h1><p id="es"></p><div class="btns"><button id="again">Try again</button><button id="tomenu">Menu</button></div></div>
@@ -45,7 +47,7 @@ const ASSETS={
   thunderSound:'',    // plays on every lightning strike
   gameMusic:'',       // loops while playing
   menuMusic:'',       // loops on the menu
-  menuBackground:'graveyard-3d (1).html',  // picture behind the main menu
+  menuBackground:'',  // picture behind the main menu
   endBackground:''    // picture behind the Try again / game-over screen
 };
 const A={};
@@ -138,8 +140,8 @@ function blackout(){if(state!=='play')return;darkT=1;SFX.beat();setTimeout(()=>{
 function thunder(){strikeT=0;bolt=mkBolt();boltX=bolt[bolt.length-1][0][0];shake=Math.max(shake,9);vib(60);SFX.thunder(R(.25,1.3));if(state==='play')setTimeout(blackout,230)}
 function scare(){state='scare';$('home').hidden=true;scareT=0;dark=darkT=0;A.music&&A.music.pause();SFX.scare();shake=30;vib([200,60,200])}
 function end(win){state=win?'won':'over';$('home').hidden=true;$('et').textContent=win?'It sees you':'You died';$('es').textContent=win?'You broke every stone. It was waiting behind the last one.':'The dark kept your soul.';$('end').hidden=false}
-function newGame(){lives=3;score=0;mk();resetBall();state='play';darkT=dark=0;nextT=time+R(4,7);['menu','end'].forEach(i=>$(i).hidden=true);$('home').hidden=false;A.menu&&A.menu.pause();ambOn()}
-function toMenu(){state='menu';['end'].forEach(i=>$(i).hidden=true);$('menu').hidden=false;$('home').hidden=true;darkT=dark=0;parts=[];ambOff();menuMusic()}
+function newGame(){document.body.classList.remove('menu-state');lives=3;score=0;mk();resetBall();state='play';darkT=dark=0;nextT=time+R(4,7);['menu','end'].forEach(i=>$(i).hidden=true);$('home').hidden=false;A.menu&&A.menu.pause();ambOn()}
+function toMenu(){document.body.classList.add('menu-state');state='menu';['end'].forEach(i=>$(i).hidden=true);$('menu').hidden=false;$('home').hidden=true;darkT=dark=0;parts=[];ambOff();menuMusic()}
 
 /* ---------- gameplay ---------- */
 function spl(px,py,n,c,k,sz){for(let i=0;i<n;i++){const a=R(0,6.3),s=k?R(10,50):R(60,300);parts.push({x:px,y:py,vx:Math.cos(a)*s,vy:Math.sin(a)*s-(k?20:60),l:R(.5,1.3),t:0,c:c[(Math.random()*c.length)|0],s:R(sz[0],sz[1]),k})}}
